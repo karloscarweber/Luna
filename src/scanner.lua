@@ -8,17 +8,16 @@
 --
 -- Scanners are made by Compilers, which are made by VMs.
 --
-
-
+require 'token'
 
 Scanner = {}
 
-Scanner:new(source)
+function Scanner:new(source)
   local u = {
     start=0,
     current=0,
     line=1,
-    source=sourc,e
+    source=source,
     tokens={}
   }
   
@@ -50,7 +49,7 @@ function Scanner:scanToken()
   if tokenFunction ~= nil then tokenFunction(self) end
 end
 
-Scanner.scanTokenFunctions - {
+Scanner.scanTokenFunctions = {
   
   -- Single Character tokens
   ["("] = function (s) s:addToken(LEFT_PAREN) end,

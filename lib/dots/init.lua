@@ -100,6 +100,13 @@ function Dots:print_results()
               mg = mg.."\n"
             elseif assertion.value == 'nil' then
               mg = mg.."   Actual: nil"
+            elseif type(assertion.value) == "boolean" then
+              local str = "false"
+              if assertion.value == true then
+                str = "true"
+              end
+              
+              mg = mg.."   Actual: "..str
             else
               mg = mg.."   Actual: "..assertion.value
             end
@@ -173,8 +180,7 @@ function Task:new(name, filelist)
   }
   setmetatable(tusk, Task)
   self.__index = self
-
-
+  
   -- scan filelist
   if type(filelist) == 'table' then
     for _,f in ipairs(filelist) do
@@ -186,8 +192,7 @@ function Task:new(name, filelist)
         local old_test_destination = Dots.test_destination
         Dots.test_destination = tusk.tests
 
-        local file = File.read(f)
-        local succeeded, response = pcall( load(file) )
+        local succeeded, response = pcall( loadfile(f) )
 
         -- move the tests over
         tusk.tests = Dots.test_destination
@@ -195,7 +200,7 @@ function Task:new(name, filelist)
         Dots.test_destination = old_test_destination
 
         if succeeded ~= true then
-          print("Tests Failed to load. Found syntax errors: ["..response.."]")
+          print("Tests Failed to load. Compilation Errors: ["..response.."] in file: ["..f.."]")
         end
       else
         print("File doesn't exist for test: "..f)
@@ -210,16 +215,19 @@ function Task:execute()
   for _,v in ipairs(self.tests) do
     -- execute the test
     local assertion_object = Dots.AssertionsObject:new()
-    local ok, response = pcall( v.funk(assertion_object) )
+    
+    local ok, response = pcall( function()
+      v.funk(assertion_object)
+    end )
 
     -- probably have to look at the assertion_object for the test results when
     -- it doesn't error out.
     -- store the result in the results thing.
     table.insert(self.results, {
-        name = v.name,
-        file = v.file,
-        results = assertion_object.results,
-      })
+      name = v.name,
+      file = v.file,
+      results = assertion_object.results,
+    })
   end
   return self.results
 end
@@ -255,6 +263,19 @@ function Dots.AssertionsObject:truthy(value, message)
   table.insert(self.results, Assertion("_truthy_assertion", status, message, nil, line, value))
   return nil
 end
+--
+function Dots.AssertionsObject:assert(value, message)
+  local line = debug.getinfo(2).currentline
+  local status = true
+  if not value then status = false end
+  table.insert(self.results, Assertion("Assert", status, message, nil, line, value))
+  return nil
+end
+--
+function Dots.AssertionsObject:refute(value, message)
+  self:assert(not value, message)
+end
+--
 function Dots.AssertionsObject:equal(value, control, message)
   local line = debug.getinfo(2).currentline
   local status = true

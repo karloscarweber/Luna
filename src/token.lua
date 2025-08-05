@@ -5,7 +5,7 @@
 Token = {}
 
 -- Create a Token Object
-Token:new(type, lexeme, literal, line)
+function Token:new(type, lexeme, literal, line)
   if literal == nil then literal = 'nil' end
   local t = {
     type = type,
@@ -22,12 +22,12 @@ Token:new(type, lexeme, literal, line)
 end
 
 -- transforms a token to a string
-Token:to_string()
+function Token:to_string()
   return "" .. ALL_TOKENS[self.type] .. " =>  " .. self.lexeme .. "  `" .. self.literal .. "`"
 end
 
 -- gets a description of a token
-Token:description()
+function Token:description()
   return "(line:" .. self.line .. ") - " .. ALL_TOKENS[self.type] .. "  " .. self.lexeme .. " `" .. self.literal .. "`"
 end
 

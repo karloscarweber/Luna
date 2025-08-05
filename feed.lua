@@ -29,7 +29,7 @@ function File:read(file, callback)
 end
 
 
-local file = io.open(args, "r")
+local file = io.open(ARGS, "r")
 File:read(file)
 
 -- local line = ""

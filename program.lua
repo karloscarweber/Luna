@@ -1,8 +1,5 @@
-args = ...
--- print(args)
-
-
-
+ARGS = ...
+-- require("./lib/core")
 require("./feed")
 
 -- local x,y,z = ...

@@ -6,6 +6,6 @@ default:
 	luajit program.lua hi.luna
 
 test:
-	luajit test/test.lua
+	luajit test.lua
 
 .PHONY: luna, test

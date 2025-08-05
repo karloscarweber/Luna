@@ -1,0 +1,39 @@
+-- src/token.lua
+-- Token and Token Type
+
+
+Token = {}
+
+-- Create a Token Object
+Token:new(type, lexeme, literal, line)
+  if literal == nil then literal = 'nil' end
+  local t = {
+    type = type,
+    lexeme = lexeme,
+    literal = literal,
+    line = line,
+    legnth = #literal,
+  }
+  
+  setmetatable(t,self)
+  self.__index = self
+  
+  return t
+end
+
+-- transforms a token to a string
+Token:to_string()
+  return "" .. ALL_TOKENS[self.type] .. " =>  " .. self.lexeme .. "  `" .. self.literal .. "`"
+end
+
+-- gets a description of a token
+Token:description()
+  return "(line:" .. self.line .. ") - " .. ALL_TOKENS[self.type] .. "  " .. self.lexeme .. " `" .. self.literal .. "`"
+end
+
+LEFT_PAREN=0;RIGHT_PAREN=1;LEFT_BRACE=2;RIGHT_BRACE=3;COMMA=4;DOT=5;MINUS=6;PLUS=7;SEMICOLON=8;SLASH=9;STAR=10;BANG=11;BANG_EQUAL=12;EQUAL=13;EQUAL_EQUAL=14;GREATER=15;GREATER_EQUAL=16;LESS=17;LESS_EQUAL=18;IDENTIFIER=19;STRING=20;NUMBER=21;AND=22;BREAK=24;CASE=25;CONTINUE=26;CLASS=27;DEF=28;DO=29;ELSE=30;END=31;ENUM=32;FALSE=33;FOR=34;FUN=35;GOTO=36;IF=37;IN=38;IS=39;LET=40;MODULE=41;NIL=42;NOT=43;OR=44;REPEAT=45;RETURN=46;SELF=47;SUPER=48;SWITCH=49;THEN=50;TRUE=51;UNTIL=52;UNLESS=53;WHEN=54;WHILE=55;EOF=56;
+
+ALL_TOKENS={}
+AT=ALL_TOKENS; AT[LEFT_PAREN]="LEFT_PAREN"; AT[RIGHT_PAREN]="RIGHT_PAREN"; AT[LEFT_BRACE]="LEFT_BRACE"; AT[RIGHT_BRACE]="RIGHT_BRACE"; AT[COMMA]="COMMA";AT[DOT]="DOT";AT[MINUS]="MINUS";AT[PLUS]="PLUS";AT[SEMICOLON]="SEMICOLON";AT[SLASH]="SLASH";AT[STAR]="STAR";AT[BANG]="BANG";AT[BANG_EQUAL]="BANG_EQUAL";AT[EQUAL]="EQUAL";AT[EQUAL_EQUAL]="EQUAL_EQUAL";AT[GREATER]="GREATER";AT[GREATER_EQUAL]="GREATER_EQUAL";AT[LESS]="LESS";AT[LESS_EQUAL]="LESS_EQUAL";AT[IDENTIFIER]="IDENTIFIER";AT[STRING]="STRING";AT[NUMBER]="NUMBER";AT[AND]="AND";AT[BREAK]="BREAK";AT[CASE]="CASE";AT[CONTINUE]="CONTINUE";AT[CLASS]="CLASS";AT[DEF]="DEF";AT[DO]="DO";AT[ELSE]="ELSE";AT[END]="END";AT[ENUM]="ENUM";AT[FALSE]="FALSE";AT[FOR]="FOR";AT[FUN]="FUN";AT[GOTO]="GOTO";AT[IF]="IF";AT[IN]="IN";AT[IS]="IS";AT[LET]="LET";AT[MODULE]="MODULE";AT[NIL]="NIL";AT[NOT]="NOT";AT[OR]="OR";AT[REPEAT]="REPEAT";AT[RETURN]="RETURN";AT[SELF]="SELF";AT[SUPER]="SUPER";AT[SWITCH]="SWITCH";AT[THEN]="THEN";AT[TRUE]="TRUE";AT[UNTIL]="UNTIL";AT[UNLESS]="UNLESS";AT[WHEN]="WHEN";AT[WHILE]="WHILE";AT[EOF]="EOF";
+
+TokenType=ALL_TOKENS

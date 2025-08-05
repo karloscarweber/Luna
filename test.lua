@@ -4,8 +4,6 @@
 package.path = "./?/init.lua;".."./?/init.lua;".."./lib/?.lua;".."./lib/?/init.lua;"..package.path
 require 'dots'
 
-print("testing..")
-
 -- Setup Testing Context
 context = Dots:new()
 tasky = Dots.Task:new("Basic Test", Dots.tests_in('test'))

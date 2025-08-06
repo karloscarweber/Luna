@@ -19,7 +19,65 @@ describe("Scanner", function()
     end)
     
     assert.is_true(#tokens > 0)
+    -- scanner:spitTokens()
     assert.are.equals(#tokens, 5)
+  end)
+  
+  it("scans the proper tokens", function()
+    local scanner, tokens = Scanner:new("()[]{}+-="), {}
+    tokens = scanner:scan()
+    
+    assert.are.equals(tokens[1].type, LEFT_PAREN)
+    assert.are.equals(tokens[2].type, RIGHT_PAREN)
+    assert.are.equals(tokens[3].type, LEFT_BRACKET)
+    assert.are.equals(tokens[4].type, RIGHT_BRACKET)
+    assert.are.equals(tokens[5].type, LEFT_BRACE)
+    assert.are.equals(tokens[6].type, RIGHT_BRACE)
+    assert.are.equals(tokens[7].type, PLUS)
+    assert.are.equals(tokens[8].type, MINUS)
+    assert.are.equals(tokens[9].type, EQUAL)
+  end)
+  
+  it("scans keywords correctly", function()
+    local scanner, tokens = Scanner:new("and break case continue"), {}
+    tokens = scanner:scan()
+    
+    assert.are.equals(tokens[1].lexeme, "and")
+    assert.are.equals(tokens[2].lexeme, "break")
+    assert.are.equals(tokens[3].lexeme, "case")
+    assert.are.equals(tokens[4].lexeme, "continue")
+    
+    -- ["class"]    = CLASS,
+    -- ["def"]      = DEF,
+    -- ["do"]       = DO,
+    -- ["else"]     = ELSE,
+    -- ["end"]      = END,
+    -- ["enum"]     = ENUM,
+    -- ["false"]    = FALSE,
+    -- ["for"]      = FOR,
+    -- ["fun"]      = FUN,
+    -- ["goto"]     = GOTO,
+    -- ["if"]       = IF,
+    -- ["in"]       = IN,
+    -- ["is"]       = IS,
+    -- ["let"]      = LET,
+    -- ["module"]   = MODULE,
+    -- ["nil"]      = NIL,
+    -- ["not"]      = NOT,
+    -- ["or"]       = OR,
+    -- ["repeat"]   = REPEAT,
+    -- ["return"]   = RETURN,
+    -- ["self"]     = SELF,
+    -- ["super"]    = SUPER,
+    -- ["switch"]   = SWITCH,
+    -- ["then"]     = THEN,
+    -- ["true"]     = TRUE,
+    -- ["until"]    = UNTIL,
+    -- ["unless"]   = UNLESS,
+    -- ["when"]     = WHEN,
+    -- ["while"]    = WHILE,
+    -- }
+    
   end)
 end)
 --

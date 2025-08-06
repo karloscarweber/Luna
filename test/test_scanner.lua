@@ -18,7 +18,7 @@ scanner_test:add("[test_scanner] Scanner:new", function(r)
   -- end)
   -- r:assert(not ok, "function was not executed properly")
   -- r:refute(ok, "function was not executed properly")
-    local source, scanner = "This is my boomstick", {}
+    local source, scanner = "This is my boomstick ", {}
     scanner = Scanner:new(source)
     
     r:assert((scanner.source == source), "source is not the same. Scanner failed to be mae.")
@@ -29,7 +29,7 @@ end)
 
 scanner_test:add("[test_scanner] Scanner:scanTokens", function(r)
   
-  local source, scanner, token_count = "This is my boomstick", {}, 0
+  local source, scanner, token_count = "This is my boomstick ", {}, 0
   scanner = Scanner:new(source)
   scanner:scanTokens()
   print("whatever")

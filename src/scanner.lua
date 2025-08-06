@@ -16,8 +16,8 @@ Scanner = {}
 -- create a new Scanner object
 function Scanner:new(source)
   local u = {
-    start=0,
-    current=0,
+    start=1, -- this starts at 1 because lua stuff is 1 based and we need to start there.
+    current=0, -- current gets pushed to one when we start
     line=1,
     source=source,
     tokens={}
@@ -39,7 +39,6 @@ end
 -- scans the source code of the scanner
 function Scanner:scan()
   while not self:isAtEnd() do
-    self.start = self.current
     self:scanToken()
   end
   
@@ -48,17 +47,16 @@ function Scanner:scan()
 end
 
 -- dumps the tokens one by one. Used for debugging.
-function Scanner:spitTokens ()
+function Scanner:spitTokens()
   for _, v in ipairs(self.tokens) do
-    print(v.toString)
+    print(v:to_string())
   end
 end
 
 -- the identifier function. checks to see if the token we're scanning
 -- is an identifier or a keyword.
 function Scanner:identifier()
-  while self:isAlphaNumeric(self:peek()) do self:advance() end
-
+  while self:isAlphaNumeric(self:peekNext()) do self:advance() end
   local text = string.sub(self.source,self.start,self.current)
   local type = self.keywords[text];
   if (type == nil) then type = IDENTIFIER end
@@ -99,6 +97,22 @@ function Scanner:string()
   self:addToken(STRING, string.sub(self.source, self.start + 1, self.current - 1))
 end
 
+-- handles whitespace.
+-- ignores whitespace and advances things.
+-- when encountering a new line, increments the line.
+function Scanner:whitespace(character)
+  local c = character
+  while (c == " " or c == "\r" or c == "\t" or c == "\n") do
+    if c == "\n" then
+      self.line = s.line + 1
+    end
+    c = self:advance()
+    if self:peekNext() == '\0' then
+      break
+    end
+  end
+end
+
 -- generic match function. We use this to assume a match to the
 -- next character, if we don't have a match we move on.
 function Scanner:match(expected)
@@ -116,6 +130,9 @@ function Scanner:get_current(step)
 end
 
 -- peek ahead to the next character
+-- which is the current character. The reason why is that when
+-- we call advance, it returns the current character we're thinking
+-- about.
 function Scanner:peek(step)
   if (self:isAtEnd()) then return '\0' end
   return self:get_current(0)
@@ -123,7 +140,7 @@ end
 
 -- peek ahead two characters
 function Scanner:peekNext()
-  if (self.current + 1 >= #self.source) then return '\0' end
+  if (self.current + 1 > #self.source) then return '\0' end
   return self:get_current(1)
 end
 
@@ -165,11 +182,19 @@ end
 
 -- adds a token to our list of tokens.
 function Scanner:addToken(type, literal)
-  local text = string.sub(self.source, self.start, self.current)
+  
+  -- resolve overshooting
+  local end_step = self.current
+  -- if type == IDENTIFIER then
+  --   end_step = self.current - 1
+  -- end
+  
+  local text = string.sub(self.source, self.start, end_step)
   self.tokens[(#self.tokens + 1)] = Token:new(type, text, "", self.line)
 end
 
 function Scanner:scanToken()
+  self.start = self.current
   local c = self:advance()
   local tokenFunction = self.scanTokenFunctions[c]
   if tokenFunction ~= nil then tokenFunction(self) end
@@ -182,7 +207,10 @@ Scanner.scanTokenFunctions = {
   [")"] = function (s) s:addToken(RIGHT_PAREN) end,
   ["{"] = function (s) s:addToken(LEFT_BRACE) end,
   ["}"] = function (s) s:addToken(RIGHT_BRACE) end,
+  ["["] = function (s) s:addToken(LEFT_BRACKET) end,
+  ["]"] = function (s) s:addToken(RIGHT_BRACKET) end,
   [","] = function (s) s:addToken(COMMA) end,
+  ["="] = function (s) s:addToken(EQUAL) end,
   ["."] = function (s) s:addToken(DOT) end,
   ["-"] = function (s) s:addToken(MINUS) end,
   ["+"] = function (s) s:addToken(PLUS) end,
@@ -210,15 +238,17 @@ Scanner.scanTokenFunctions = {
       s:addToken(SLASH);
     end
   end,
-  [" "]  = function (s) --[[ Do nothing --]] end,
-  ["\r"] = function (s) --[[ Do nothing --]] end,
-  ["\t"] = function (s) --[[ Do nothing --]] end,
-  ["\n"] = function (s)
-    s.line = s.line + 1
-  end,
+  [" "]  = function (s) s:whitespace(" ") end,
+  ["\r"] = function (s) s:whitespace("\r") end,
+  ["\t"] = function (s) s:whitespace("\t") end,
+  ["\n"] = function (s) s:whitespace("\n") end,
   ['"'] = function (s)
     s:string()
   end,
+  
+  -- for Alphabetic characters and digit characters we use the metatable lookups
+  -- below
+  
 }
 
 -- OK, so ScanTokenFunctions is like a switch statement of

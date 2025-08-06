@@ -39,44 +39,86 @@ describe("Scanner", function()
   end)
   
   it("scans keywords correctly", function()
-    local scanner, tokens = Scanner:new("and break case continue"), {}
+    local scanner, tokens = Scanner:new("and break case continue class def do else end enum false for fun goto if in is let module nil not or repeat return self super switch then true until unless when while"), {}
     tokens = scanner:scan()
     
-    assert.are.equals(tokens[1].lexeme, "and")
-    assert.are.equals(tokens[2].lexeme, "break")
-    assert.are.equals(tokens[3].lexeme, "case")
-    assert.are.equals(tokens[4].lexeme, "continue")
+    assert.are.equals("and", tokens[1].lexeme)
+    assert.are.equals(Scanner.keywords["and"], tokens[1].type)
     
-    -- ["class"]    = CLASS,
-    -- ["def"]      = DEF,
-    -- ["do"]       = DO,
-    -- ["else"]     = ELSE,
-    -- ["end"]      = END,
-    -- ["enum"]     = ENUM,
-    -- ["false"]    = FALSE,
-    -- ["for"]      = FOR,
-    -- ["fun"]      = FUN,
-    -- ["goto"]     = GOTO,
-    -- ["if"]       = IF,
-    -- ["in"]       = IN,
-    -- ["is"]       = IS,
-    -- ["let"]      = LET,
-    -- ["module"]   = MODULE,
-    -- ["nil"]      = NIL,
-    -- ["not"]      = NOT,
-    -- ["or"]       = OR,
-    -- ["repeat"]   = REPEAT,
-    -- ["return"]   = RETURN,
-    -- ["self"]     = SELF,
-    -- ["super"]    = SUPER,
-    -- ["switch"]   = SWITCH,
-    -- ["then"]     = THEN,
-    -- ["true"]     = TRUE,
-    -- ["until"]    = UNTIL,
-    -- ["unless"]   = UNLESS,
-    -- ["when"]     = WHEN,
-    -- ["while"]    = WHILE,
-    -- }
+    assert.are.equals("break", tokens[2].lexeme)
+    assert.are.equals("case", tokens[3].lexeme)
+    assert.are.equals("continue", tokens[4].lexeme)
+    assert.are.equals(Scanner.keywords["break"], tokens[2].type)
+    assert.are.equals(Scanner.keywords["case"], tokens[3].type)
+    assert.are.equals(Scanner.keywords["continue"], tokens[4].type)
+    
+    assert.are.equals("class", tokens[5].lexeme)
+    assert.are.equals("def", tokens[6].lexeme)
+    assert.are.equals("do", tokens[7].lexeme)
+    assert.are.equals(Scanner.keywords["class"], tokens[5].type)
+    assert.are.equals(Scanner.keywords["def"], tokens[6].type)
+    assert.are.equals(Scanner.keywords["do"], tokens[7].type)
+      
+    assert.are.equals("else", tokens[8].lexeme)
+    assert.are.equals("end", tokens[9].lexeme)
+    assert.are.equals("enum", tokens[10].lexeme)
+    assert.are.equals(Scanner.keywords["else"], tokens[8].type)
+    assert.are.equals(Scanner.keywords["end"], tokens[9].type)
+    assert.are.equals(Scanner.keywords["enum"], tokens[10].type)
+    
+    assert.are.equals("false", tokens[11].lexeme)
+    assert.are.equals("for", tokens[12].lexeme)
+    assert.are.equals("fun", tokens[13].lexeme)
+    assert.are.equals(Scanner.keywords["false"], tokens[11].type)
+    assert.are.equals(Scanner.keywords["for"], tokens[12].type)
+    assert.are.equals(Scanner.keywords["fun"], tokens[13].type)
+    
+    assert.are.equals("goto", tokens[14].lexeme)
+    assert.are.equals("if", tokens[15].lexeme)
+    assert.are.equals("in", tokens[16].lexeme)
+    assert.are.equals(Scanner.keywords["goto"], tokens[14].type)
+    assert.are.equals(Scanner.keywords["if"], tokens[15].type)
+    assert.are.equals(Scanner.keywords["in"], tokens[16].type)
+    
+    assert.are.equals("is", tokens[17].lexeme)
+    assert.are.equals("let", tokens[18].lexeme)
+    assert.are.equals("module", tokens[19].lexeme)
+    assert.are.equals(Scanner.keywords["is"], tokens[17].type)
+    assert.are.equals(Scanner.keywords["let"], tokens[18].type)
+    assert.are.equals(Scanner.keywords["module"], tokens[19].type)
+    
+    assert.are.equals("nil", tokens[20].lexeme)
+    assert.are.equals("not", tokens[21].lexeme)
+    assert.are.equals("or", tokens[22].lexeme)
+    assert.are.equals(Scanner.keywords["nil"], tokens[20].type)
+    assert.are.equals(Scanner.keywords["not"], tokens[21].type)
+    assert.are.equals(Scanner.keywords["or"], tokens[22].type)
+    
+    assert.are.equals("repeat", tokens[23].lexeme)
+    assert.are.equals("return", tokens[24].lexeme)
+    assert.are.equals("self", tokens[25].lexeme)
+    assert.are.equals(Scanner.keywords["repeat"], tokens[23].type)
+    assert.are.equals(Scanner.keywords["return"], tokens[24].type)
+    assert.are.equals(Scanner.keywords["self"], tokens[25].type)
+    
+    assert.are.equals("super", tokens[26].lexeme)
+    assert.are.equals("switch", tokens[27].lexeme)
+    assert.are.equals("then", tokens[28].lexeme)
+    assert.are.equals(Scanner.keywords["super"], tokens[26].type)
+    assert.are.equals(Scanner.keywords["switch"], tokens[27].type)
+    assert.are.equals(Scanner.keywords["then"], tokens[28].type)
+    
+    assert.are.equals("true", tokens[29].lexeme)
+    assert.are.equals("until", tokens[30].lexeme)
+    assert.are.equals("unless", tokens[31].lexeme)
+    assert.are.equals(Scanner.keywords["true"], tokens[29].type)
+    assert.are.equals(Scanner.keywords["until"], tokens[30].type)
+    assert.are.equals(Scanner.keywords["unless"], tokens[31].type)
+    
+    assert.are.equals("when", tokens[32].lexeme)
+    assert.are.equals("while", tokens[33].lexeme)
+    assert.are.equals(Scanner.keywords["when"], tokens[32].type)
+    assert.are.equals(Scanner.keywords["while"], tokens[33].type)
     
   end)
 end)

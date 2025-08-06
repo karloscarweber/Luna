@@ -219,6 +219,11 @@ function Task:execute()
     local ok, response = pcall( function()
       v.funk(assertion_object)
     end )
+    
+    if not ok then
+      print("Smopethig went very wrong.")
+      print(debug.traceback("This should be interesting"))
+    end
 
     -- probably have to look at the assertion_object for the test results when
     -- it doesn't error out.
@@ -363,7 +368,9 @@ function Dots.Test:add(test_name, funk)
   if funk == nil then print("funk was nil for that last test") end
   table.insert(Dots.test_destination, {
     name = "["..self.name.."]"..test_name,
-    funk = funk,
+    funk = function()
+      local a, b = pcall(funk())
+    end,
     file = self.file,
   })
 end

@@ -88,6 +88,13 @@ Parser = {}
 -- create a new Parser object
 function Parser:new(source)
   local u = {
+    line=0,
+    indent=0,
+    current_scope=0,
+    current=0,
+    module_name="",
+    output="",
+    parsers={},
     source=source,
     scanner=Scanner:new(source)
   }
@@ -105,6 +112,57 @@ function Parser:new(source)
   return u
 end
 
+-- starts parsing
+function Parser:parse()
+  while not self:isAtEnd() do
+    self:parseToken()
+  end
+end
+
+-- gets the current token, with optional peek forward or backward
+function Scanner:get_current(step)
+  if not step then step = 0 end -- sets default value of step
+  return self.scanner.tokens[self.current+step]
+end
+
+function Scanner:peek()
+  return self.scanner.tokens[self.current]
+end
+
+function Scanner:peekNext()
+  return self.scanner.tokens[self.current+1]
+end
+
+function Scanner:peekNextNext()
+  return self.scanner.tokens[self.current+2]
+end
+
+function Scanner:peekBack()
+  return self.scanner.tokens[self.current-1]
+end
+
+function Scanner:peekBackBack()
+  return self.scanner.tokens[self.current-2]
+end
+
+-- advances the parser forward
+function Scanner:advance()
+  self.current = self.current + 1
+  return self:get_current()
+end
+
+function Parser:parseToken()
+  local t = self:advance()
+  self.start = self.current
+  local tokenFunction = self.parserFunctions[t]
+  if tokenFunction ~= nil then tokenFunction(self) end
+end
+
+-- checks to see if we're at the end of our scanning.
+function Parser:isAtEnd()
+  return self.current >= #self.scanner.tokens
+end
+
 -- a list of functions that we 'index' in our parser. That is we look up the
 -- index like this:
 --[[
@@ -114,10 +172,43 @@ end
   end
 ]]
 
+
+-- Entry way for our parsing party. We check the token type against
+-- this list and then determine if it's a valid beginning or entrypoint
+-- to the program
 Parser.parserFunctions = {
-  ["whatever"] = function (s)
-    s:this_is_my_united_tates_of_whatever()
+  [LEFT_PAREN] = function (s)
+    s:grouping()
   end,
+  [RIGHT_PAREN] = function (s) s:invalid() end
+  [LEFT_BRACE] = function (s) s:invalid() end
+  [RIGHT_BRACE] = function (s) s:invalid() end
+  [COMMA] = function (s) s:invalid() end
+  [DOT] = function (s) s:invalid() end
+  [MINUS] = function (s) s:prefix() end
+  [PLUS] = function (s) s:prefix() end
+  [SEMICOLON] = function (s) s:invalid() end
+  [SLASH] = function (s) s:comment() end
+  [STAR] = function (s) s:invalid() end
+  [BANG] = function (s) s:prefix() end
+  [BANG_EQUAL] = function (s) s:invalid() end
+  [EQUAL] = function (s) s:invalid() end
+  [EQUAL_EQUAL] = function (s) s:invalid() end
+  [GREATER] = function (s) s:invalid() end
+  [GREATER_EQUAL] = function (s) s:invalid() end
+  [LESS] = function (s) s:invalid() end
+  [LESS_EQUAL] = function (s) s:invalid() end
+  [IDENTIFIER] = function (s) s:identifier() end
+  [STRING] = function (s) s:string() end
+  [NUMBER] = function (s) s:number() end
+  [AND] = function (s) s:and() end
+  [BREAK] = function (s) s:invalid() end
+  [CASE] = function (s) s:case() end
+  [CONTINUE] = function (s) s:continue() end
+  [CLASS] = function (s) s:class() end
+  [DEF] = function (s) s:def() end
+  
+  -- DO=29;ELSE=30;END=31;ENUM=32;FALSE=33;FOR=34;FUN=35;GOTO=36;IF=37;IN=38;IS=39;LET=40;MODULE=41;NIL=42;NOT=43;OR=44;REPEAT=45;RETURN=46;SELF=47;SUPER=48;SWITCH=49;THEN=50;TRUE=51;UNTIL=52;UNLESS=53;WHEN=54;WHILE=55;EOF=56;LEFT_BRACKET=57;RIGHT_BRACKET=58;SPACE=59;TAB=60;
 }
 
 -- Set upt the super table for the Parser.parserFunctions table.

@@ -2,10 +2,10 @@
 # if so, export that.
 #default:
 
-default:
-	luajit program.lua hi.luna
-
-test:
-	luajit test.lua
+# default:
+	# luajit program.lua hi.luna
+#
+# test:
+	# luajit test.lua
 
 .PHONY: luna, test

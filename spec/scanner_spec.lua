@@ -33,7 +33,7 @@ describe("Scanner", function()
   end)
   
   
-  it("scans the proper operator and sybmol tokens", function()
+  it("scans the proper operator and symbol tokens", function()
     local scanner, tokens = Scanner:new("()[]{}+-="), {}
     tokens = scanner:scan()
     

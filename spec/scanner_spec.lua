@@ -12,18 +12,28 @@ describe("Scanner", function()
     assert.are.equals(scanner.source, (source.."\0"))
   end)
   
+  
+  it("Adds null terminating byte when source doesn't have one.", function()
+    local src = "This is my boomstick"
+    local scan = Scanner:new(src)
+    assert.are_not.equals(scan.source, src)
+  end)
+  
   it("can scan tokens", function()
-    local tokens = {}
+    local source, scanner, tokens = "This is my boomstick", {}, {}
+    scanner = Scanner:new(source)
+    
     assert.has_no.errors(function()
       tokens = scanner:scan()
     end)
     
     assert.is_true(#tokens > 0)
     -- scanner:spitTokens()
-    assert.are.equals(#tokens, 5)
+    assert.are.equals(5, #tokens)
   end)
   
-  it("scans the proper tokens", function()
+  
+  it("scans the proper operator and sybmol tokens", function()
     local scanner, tokens = Scanner:new("()[]{}+-="), {}
     tokens = scanner:scan()
     

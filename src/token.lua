@@ -1,7 +1,6 @@
 -- src/token.lua
 -- Token and Token Type
 
-
 Token = {}
 
 -- Create a Token Object

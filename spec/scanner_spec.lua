@@ -9,7 +9,7 @@ describe("Scanner", function()
   scanner = Scanner:new(source)
   
   it("can be initialized, and has it's source", function()
-    assert.are.equals(scanner.source, source)
+    assert.are.equals(scanner.source, (source.."\0"))
   end)
   
   it("can scan tokens", function()
@@ -27,15 +27,27 @@ describe("Scanner", function()
     local scanner, tokens = Scanner:new("()[]{}+-="), {}
     tokens = scanner:scan()
     
-    assert.are.equals(tokens[1].type, LEFT_PAREN)
-    assert.are.equals(tokens[2].type, RIGHT_PAREN)
-    assert.are.equals(tokens[3].type, LEFT_BRACKET)
-    assert.are.equals(tokens[4].type, RIGHT_BRACKET)
-    assert.are.equals(tokens[5].type, LEFT_BRACE)
-    assert.are.equals(tokens[6].type, RIGHT_BRACE)
-    assert.are.equals(tokens[7].type, PLUS)
-    assert.are.equals(tokens[8].type, MINUS)
-    assert.are.equals(tokens[9].type, EQUAL)
+    assert.are.equals(LEFT_PAREN, tokens[1].type)
+    assert.are.equals(RIGHT_PAREN, tokens[2].type)
+    assert.are.equals(LEFT_BRACKET, tokens[3].type)
+    assert.are.equals(RIGHT_BRACKET, tokens[4].type)
+    assert.are.equals(LEFT_BRACE, tokens[5].type)
+    assert.are.equals(RIGHT_BRACE, tokens[6].type)
+    assert.are.equals(PLUS, tokens[7].type)
+    assert.are.equals(MINUS, tokens[8].type)
+    assert.are.equals(EQUAL, tokens[9].type)
+    assert.are.equals(EOF, tokens[10].type)
+  end)
+  
+  it("scans double character operators properly", function()
+    local scanner, tokens = Scanner:new("<= >= != == "), {}
+    tokens = scanner:scan()
+    
+    assert.are.equals(LESS_EQUAL, tokens[1].type)
+    assert.are.equals(GREATER_EQUAL, tokens[2].type)
+    assert.are.equals(BANG_EQUAL, tokens[3].type)
+    assert.are.equals(EQUAL_EQUAL, tokens[4].type)
+    assert.are.equals(EOF, tokens[5].type)
   end)
   
   it("scans keywords correctly", function()
@@ -121,49 +133,14 @@ describe("Scanner", function()
     assert.are.equals(Scanner.keywords["while"], tokens[33].type)
     
   end)
+  
+  it("scans strings correctly", function()
+    local scanner, tokens = Scanner:new("\"keyboard wizard\""), {}
+    tokens = scanner:scan()
+    
+    assert.are.equals("\"keyboard wizard\"\0", tokens[1].lexeme)
+    assert.are.equals(STRING, tokens[1].type)
+  end)
+  
 end)
---
--- -- A Sample test file
--- local scanner_test = Dots.Test:new("scanner", 'test/test_scanner.lua')
---
--- scanner_test:add("[test_scanner] Scanner:new", function(r)
-  --
-  -- -- local tk = Token:new("brunette", "brown", "brownhair", 5)
-  -- -- r:assert((tk.type == "brunette"), "What! She's not a brunette?")
-  -- --
-  -- -- -- test execution of
-  -- -- local ok, response = pcall( function()
-  -- --   v.funk(assertion_object)
-  -- -- end)
-  -- -- r:assert(not ok, "function was not executed properly")
-  -- -- r:refute(ok, "function was not executed properly")
-  --   local source, scanner = "This is my boomstick", {}
-  --   scanner = Scanner:new(source)
-  --
-  --   r:assert((scanner.source == source), "source is not the same. Scanner failed to be mae.")
---
--- end)
---
---
---
--- scanner_test:add("[test_scanner] Scanner:scanTokens", function(r)
-  --
-  -- local source, scanner, token_count = "This is my boomstick", {}, 0
-  -- scanner = Scanner:new(source)
-  -- scanner:scanTokens()
-  -- print("whatever")
-  -- print("whatever")
-  -- print("whatever")
-  -- print("whatever")
-  -- token_count = #scanner.tokens
-  -- print(string.format("tokens: %d", token_count))
-  --
-  -- r:assert((token_count == 10), string.format("Not enough tokens. Found %d", token_count))
-  --
---
-  -- -- local source = "this is some source()"
-  -- --
-  -- -- r:assert()
-  --
--- end)
 

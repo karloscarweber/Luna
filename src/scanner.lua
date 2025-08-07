@@ -23,6 +23,10 @@ function Scanner:new(source)
     tokens={}
   }
   
+  if string.sub(source, -1) ~= '\0' then
+    u.source = source .. '\0'
+  end
+  
   -- sets the metatable of the new u object to self. In this instance,
   -- it's the Scanner namespace that's getting fille dup with functions.
   setmetatable(u,self)
@@ -81,14 +85,17 @@ end
 function Scanner:string()
   -- Once we hit this function, we're still at the ["] in the source, we need to advance to actually capture the string
   self:advance()
-  while (self:peek() ~= '"' and not self:isAtEnd() ) do
+  while(self:peek() ~= '"' and not self:isAtEnd() ) do
     if self:peek() == '\n' then self.line = self.line + 1 end
+    if self:peek() == '\\' and self:peekNext() == '"' then
+      self:advance()
+    end
     self:advance()
   end
 
   -- we only hit this error if we never get this string terminated.
-  if self:isAtEnd() then
-    error("unterminated string. at line: " .. self.line)
+  if self:isAtEnd() and self:peek() ~= '"' then
+    error("unterminated string. at line: " .. self.line .. ". current:[" .. self:get_current(0) .. "], previous:[" .. self:get_current(-1) .. "]")
     return
   end
 
@@ -102,9 +109,12 @@ end
 -- when encountering a new line, increments the line.
 function Scanner:whitespace(character)
   local c = character
-  while (c == " " or c == "\r" or c == "\t" or c == "\n") do
+  while (self:isWhitespace(c)) do
     if c == "\n" then
       self.line = s.line + 1
+    end
+    if (not self:isWhitespace(self:peekNext())) then
+      break
     end
     c = self:advance()
     if self:peekNext() == '\0' then
@@ -117,10 +127,13 @@ end
 -- next character, if we don't have a match we move on.
 function Scanner:match(expected)
   if (self:isAtEnd()) then return false end
-  if (self:get_current() ~= expected) then return false end
+  if self:peekNext() == expected
+  then
+    self:advance()
+    return true;
+  end
 
-  self.current = self.current + 1;
-  return true;
+  return false;
 end
 
 -- gets the current character, with optional peek forward or backward
@@ -149,6 +162,11 @@ function Scanner:peekBack()
   -- short circuits to see if it's the end.
   if (self.current == #self.source) then return '\0' end
   return self:get_current(-1)
+end
+
+-- returns true if the character is whitespace
+function Scanner:isWhitespace(c)
+  return (c == " " or c == "\r" or c == "\t" or c == "\n")
 end
 
 -- Check to see if we're getting strings or digits.
@@ -182,20 +200,13 @@ end
 
 -- adds a token to our list of tokens.
 function Scanner:addToken(type, literal)
-  
-  -- resolve overshooting
-  local end_step = self.current
-  -- if type == IDENTIFIER then
-  --   end_step = self.current - 1
-  -- end
-  
-  local text = string.sub(self.source, self.start, end_step)
-  self.tokens[(#self.tokens + 1)] = Token:new(type, text, "", self.line)
+  local lexeme = string.sub(self.source, self.start, self.current)
+  self.tokens[(#self.tokens + 1)] = Token:new(type, lexeme, "", self.line)
 end
 
 function Scanner:scanToken()
-  self.start = self.current
   local c = self:advance()
+  self.start = self.current
   local tokenFunction = self.scanTokenFunctions[c]
   if tokenFunction ~= nil then tokenFunction(self) end
 end
@@ -217,16 +228,32 @@ Scanner.scanTokenFunctions = {
   [";"] = function (s) s:addToken(SEMICOLON) end,
   ["*"] = function (s) s:addToken(STAR) end,
   ["!"] = function (s)
-    s:addToken(s:match('=') and BANG_EQUAL or BANG)
-  end,
-  ["="] = function (s)
-    s:addToken(s:match('=') and EQUAL_EQUAL or EQUAL)
+    if s:match('=') then
+      s:addToken(BANG_EQUAL)
+    else
+      s:addToken(BANG)
+    end
   end,
   ["<"] = function (s)
-    s:addToken(s:match('=') and LESS_EQUAL or LESS)
+    if s:match('=') then
+      s:addToken(LESS_EQUAL)
+    else
+      s:addToken(LESS)
+    end
   end,
   [">"] = function (s)
-    s:addToken(s:match('=') and GREATER_EQUAL or GREATER)
+    if s:match('=') then
+      s:addToken(GREATER_EQUAL)
+    else
+      s:addToken(GREATER)
+    end
+  end,
+  ["="] = function (s)
+    if s:match('=') then
+      s:addToken(EQUAL_EQUAL)
+    else
+      s:addToken(EQUAL)
+    end
   end,
   ["/"] = function (s)
     if (s:match('/')) then
@@ -245,6 +272,7 @@ Scanner.scanTokenFunctions = {
   ['"'] = function (s)
     s:string()
   end,
+  ["\0"] = function (s) --[[ Do nothing --]] end,
   
   -- for Alphabetic characters and digit characters we use the metatable lookups
   -- below
@@ -272,7 +300,9 @@ stfmt.__index = function (table, key)
   elseif table.supertable:isAlpha(key) then
     table.supertable:identifier()
   else
-    error("Unexpected Character "..key..", at line "..table.supertable.line, 2)
+    local key_s = key
+    if key == '\0' then key_s = '\\0' end
+    error("Unexpected Character "..key_s..", at line "..table.supertable.line, 2)
   end
 end
 
